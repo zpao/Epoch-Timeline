@@ -16,7 +16,7 @@ EpochTimeline.prototype = {
   _title: null,
   _elem: null,
   _events: [],
-  _interval: 100,
+  _interval: 500,
   _autorun: true,
   _isRunning: false,
 
@@ -40,15 +40,33 @@ EpochTimeline.prototype = {
 
     // parse out other options
     this.setInterval(aOptions.interval);
+    if (typeof(aOptions.autorun) == "boolean")
+      this._autorun = aOptions.autorun;
 
-
+    if (this._autorun)
+      this.play();
   },
 
   update: function(self) {
-    // loop over events & update
-    if (isRunning)
-      setTimeout(function() { self.update(self); }, self._interval);
-  }
+    if (!self._isRunning)
+      return;
+
+    var now = new Date();
+    elog("[" + now + "] updating...");
+
+    setTimeout(function() { self.update(self); }, self._interval);
+  },
+
+  play: function() {
+    if (!this._isRunning) {
+      this._isRunning = true;
+      this.update(this);
+    }
+  },
+
+  pause: function() {
+    this._isRunning = false;
+  },
 
   setInterval: function(aInterval) {
     if (aInterval && typeof(aInterval) == "number")

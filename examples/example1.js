@@ -2,6 +2,7 @@
 var timelineOptions = {
   title: "timeline title",
   id: "timeline1",
+  autorun: false,
   events: [
     {
       datetime: 1230796800000,
