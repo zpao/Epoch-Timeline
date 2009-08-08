@@ -79,6 +79,37 @@ EpochTimeline.prototype = {
   },
 
   _parseEvents: function(aEvents) {
+  },
+
+  _datediff: function(aDate1, aDate2) {
+    var rv = {};
+    var diff = Math.abs(aDate2 - aDate1);
+
+    rv.raw_milliseconds = diff;
+    rv.total_milliseconds = diff;
+    rv.milliseconds = diff % 1000;
+
+    rv.raw_seconds = diff / 1000;
+    rv.total_seconds = Math.floor(rv.raw_seconds);
+    rv.seconds = Math.floor(rv.raw_seconds % 60);
+
+    rv.raw_minutes = diff / (1000 * 60);
+    rv.total_minutes = Math.floor(rv.raw_minutes);
+    rv.minutes = Math.floor(rv.raw_minutes % 60);
+
+    rv.raw_hours = diff / (1000 * 60 * 60);
+    rv.total_hours = Math.floor(rv.raw_hours);
+    rv.hours = Math.floor(rv.raw_hours % 24);
+
+    rv.raw_days = diff / (1000 * 60 * 60 * 24);
+    rv.total_days = Math.floor(rv.raw_days);
+    rv.days = Math.floor(rv.raw_days % 365);
+
+    rv.raw_years = diff / (1000 * 60 * 60 * 24 * 365);
+    rv.total_years = Math.floor(rv.raw_years);
+    rv.years = rv.total_years;
+
+    return rv;
   }
 
 }
