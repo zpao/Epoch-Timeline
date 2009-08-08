@@ -27,16 +27,20 @@ EpochTimeline.prototype = {
     // Prevent duplicate initialization
     if (this._isInitialized)
       throw new Error("Already initialized");
+
     // Make sure we have the right options
     if (!aOptions)
       throw new Error("No options provided");
-    if (!aOptions.events)
-      throw new Error("Cannot create timeline without events");
 
     // find element
     this._initElem(aOptions.id);
     if (!this._elem)
       throw new Error("Cannot create timeline without a DOM element");
+
+    // handle events
+    this._initEvents(aOptions.events);
+    if (!this._events.length)
+      throw new Error("Cannot create timeline without events");
 
     // parse out other options
     this.setInterval(aOptions.interval);
@@ -53,6 +57,10 @@ EpochTimeline.prototype = {
 
     var now = new Date();
     elog("[" + now + "] updating...");
+
+    Array.forEach(self._events, function(aEvent) {
+      aEvent.update();
+    });
 
     setTimeout(function() { self.update(self); }, self._interval);
   },
@@ -78,7 +86,55 @@ EpochTimeline.prototype = {
     this._elem = document.getElementById(aId);
   },
 
-  _parseEvents: function(aEvents) {
+  _initEvents: function(aEvents) {
+    if (!aEvents || !aEvents.length)
+      return;
+
+    var self = this;
+
+    Array.forEach(aEvents, function(aEvent) {
+      // Create a <div> for the event
+      var elem = document.createElement("div");
+      self._elem.appendChild(elem);
+      self._events.push(new EpochTimelineEvent(elem,  aEvent));
+    });
+  }
+
+}
+
+
+
+
+function EpochTimelineEvent(aElem, aOptions) {
+  this.init(aElem, aOptions);
+}
+
+EpochTimelineEvent.prototype = {
+
+  _title: null,
+  _description: null,
+  _datetime: null,
+  _elem: null,
+
+  init: function(aElem, aOptions) {
+    // XXXzpao add some integrity checks in here
+    this._elem = aElem;
+    this._datetime = aOptions.datetime;
+    this._title = aOptions.title;
+    this._description = aOptions.description;
+  },
+
+  update: function() {
+    var datediff = this._datediff(this._datetime, new Date());
+    var htmlBits = [
+      "<b>", this._title, ": ", "</b>",
+      datediff.years, " years, ",
+      datediff.days, " days, ",
+      datediff.hours, " hours, ",
+      datediff.minutes, " minutes, and ",
+      datediff.seconds, " seconds ago."
+   ];
+    this._elem.innerHTML = htmlBits.join("");
   },
 
   _datediff: function(aDate1, aDate2) {
@@ -111,10 +167,5 @@ EpochTimeline.prototype = {
 
     return rv;
   }
-
 }
-
-function EpochTimelineEvent(aOptions) {}
-
-EpochTimelineEvent.prototype = {}
 
